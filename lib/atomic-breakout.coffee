@@ -8,6 +8,15 @@ gameloop = (editor) ->
   # else
   #   @modalPanel.show()
 
+destroyChar = (editor, x, y) ->
+  replaceChar(editor, x, y, ' ')
+
+replaceChar = (editor, x, y, z) ->
+  r = [[x, y], [x, y]]
+  editor.setSelectedScreenRange(r)
+  editor.delete()
+  editor.setTextInBufferRange(r, ' ')
+
 module.exports = AtomicBreakout =
   atomicBreakoutView: null
   modalPanel: null
@@ -31,9 +40,6 @@ module.exports = AtomicBreakout =
       selection = editor.getSelectedText()
       atom.workspace.open().then (editor) ->
         editorView = atom.views.getView(editor)
-        gameloop(editor)
-
-        # editor.insertText(selection)
-        #
+        
         # console.log(editor.getLastScreenRow())
         # console.log(editor.getLastScreenRow())
