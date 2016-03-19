@@ -74,8 +74,13 @@ gameloop = ->
   drawBall()
 
 
-gameInit = ->
-  globalEditor.insertText('                                                                            \n') for i in [0..30]
+gameInit = (selection) ->
+  space = ""
+  space += ' ' for i in [0..80]
+
+  lines = selection.split('\n')
+  globalEditor.insertText(space + '\n') for i in [0..7]
+  globalEditor.insertText(space + '\n') for i in [0..(BOTTOM - getStringLines(selection)+1)]
   setupGameLoop(gameloop)
 
 onLeftDown = (event) ->
@@ -93,6 +98,13 @@ onLeftUp = (event) ->
 
 onRightUp = (event) ->
   goingRight = false
+
+getStringLines = (str) ->
+  counter = 1
+  for c in str
+    if c == '\n'
+      counter++
+  counter
 
   # if @modalPanel.isVisible()
   #   @modalPanel.hide()
@@ -158,7 +170,6 @@ module.exports = AtomicBreakout =
 
       atom.workspace.open().then (editor) ->
         globalEditor = editor
-        editor.insertText(selection)
         editorView = atom.views.getView(editor)
 
         editorView.addEventListener 'keydown', handler = (event) ->
@@ -169,8 +180,7 @@ module.exports = AtomicBreakout =
           onLeftUp() if event.which is 37
           onRightUp() if event.which is 39
 
-        gameInit()
-        gameloop()
+        gameInit(selection)
 
         # editor.insertText(selection)
         #
