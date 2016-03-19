@@ -14,7 +14,7 @@ module.exports = AtomicBreakout =
     @subscriptions = new CompositeDisposable
 
     # Register command that toggles this view
-    @subscriptions.add atom.commands.add 'atom-workspace', 'atomic-breakout:toggle': => @toggle()
+    @subscriptions.add atom.commands.add 'atom-workspace', 'atomic-breakout:convert': => @convert()
 
   deactivate: ->
     @modalPanel.destroy()
@@ -24,10 +24,12 @@ module.exports = AtomicBreakout =
   serialize: ->
     atomicBreakoutViewState: @atomicBreakoutView.serialize()
 
-  toggle: ->
+  convert: ->
     console.log 'AtomicBreakout was toggled!'
+    if editor = atom.workspace.getActiveTextEditor()
+      editor.insertText('Hello, World!')
 
-    if @modalPanel.isVisible()
-      @modalPanel.hide()
-    else
-      @modalPanel.show()
+    # if @modalPanel.isVisible()
+    #   @modalPanel.hide()
+    # else
+    #   @modalPanel.show()

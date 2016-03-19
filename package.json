@@ -6,7 +6,7 @@
   "keywords": [
   ],
   "activationCommands": {
-    "atom-workspace": "atomic-breakout:toggle"
+    "atom-workspace": "atomic-breakout:convert"
   },
   "repository": "https://github.com/atom/atomic-breakout",
   "license": "MIT",
