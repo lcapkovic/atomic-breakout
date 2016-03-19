@@ -20,16 +20,16 @@ fpscounter = 0
 
 isCollision = ->
   globalEditor.setSelectedBufferRange([[currentX,currentY-1], [currentX,currentY-1]]) # top
-  if globalEditor.getSelectedText() = " "
+  if globalEditor.getSelectedText() == " "
     return 0;
   globalEditor.setSelectedBufferRange([[currentX+1,currentY], [currentX+1,currentY]]) # right
-  if globalEditor.getSelectedText() = " "
+  if globalEditor.getSelectedText() == " "
     return 1;
   globalEditor.setSelectedBufferRange([[currentX,currentY+1], [currentX,currentY+1]]) # down
-  if globalEditor.getSelectedText() = " "
+  if globalEditor.getSelectedText() == " "
     return 2;
   globalEditor.setSelectedBufferRange([[currentX-1,currentY], [currentX-1,currentY]]) # left
-  if globalEditor.getSelectedText() = " "
+  if globalEditor.getSelectedText() == " "
     return 3;
 return -1;
 
