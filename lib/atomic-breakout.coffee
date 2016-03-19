@@ -10,15 +10,29 @@ paddle = " ########## "
 
 currentX = 20
 currentY = 15
-vectorX = 0.005
-vectorY = 0.005
+vectorX = 0.2
+vectorY = 0.2
 
 BOTTOM = 30
+RIGHT = 80
+
+fpscounter = 0
 
 drawPaddle = () ->
   paddleLength = paddle.length
   globalEditor.setTextInBufferRange([[BOTTOM,paddleStart],[BOTTOM,paddleStart+paddleLength]],paddle)
 
+removeBall = () ->
+  x = Math.round(currentX)
+  y = Math.round(currentY)
+
+  globalEditor.setTextInBufferRange([[x,y],[x,y+1]], ' ')
+
+drawBall = () ->
+  x = Math.round(currentX)
+  y = Math.round(currentY)
+
+  globalEditor.setTextInBufferRange([[x,y],[x,y+1]], 'O')
 
 setupGameLoop = (gameLoop) ->
   animationFrame = window.requestAnimationFrame
@@ -34,16 +48,19 @@ setupGameLoop = (gameLoop) ->
     every 1000/60, () ->
       gameLoop()
 
-gameloop = (editor) ->
+gameloop = ->
   if goingLeft && paddleStart > 0
     paddleStart--
   if goingRight && paddleStart < 70
     paddleStart++
   drawPaddle()
+  removeBall()
+  moveBall()
+  drawBall()
 
 
-gameInit = (editor) ->
-  globalEditor.insertText('                           \n') for i in [0..40]
+gameInit = ->
+  globalEditor.insertText('                                                                            \n') for i in [0..30]
   setupGameLoop(gameloop)
 
 onLeftDown = (event) ->
@@ -77,22 +94,22 @@ onRightUp = (event) ->
 
 moveBall = ->
 
-  paddleLength = 10
+  paddleLength = paddle.length-2
 
   # Calculate column coordinate: (version without letters)
   newY = currentY + vectorY
   vectorY = switch
-    when newY > right then -vectorY
+    when newY > RIGHT then -vectorY
     when newY < 0 then -vectorY
     else vectorY
   currentY = currentY + vectorY
 
   # Calculate row coordinate: (version without paddle angle and letters)
   newX = currentX + vectorX
-  if ((newX > bottom and newY > paddleStart and newY < paddleStart + paddleLength) or (newX < bottom))
+  if ((newX > BOTTOM and newY > paddleStart and newY < paddleStart + paddleLength) or (newX < BOTTOM))
     vectorX = switch
-      when newX > bottom then -vectorX
-      when newY < 0 then -vectorX
+      when newX > BOTTOM then -vectorX
+      when newX < 0 then -vectorX
       else vectorX
   else
     vectorX = vectorX
@@ -137,9 +154,8 @@ module.exports = AtomicBreakout =
           onLeftUp() if event.which is 37
           onRightUp() if event.which is 39
 
-        gameInit(editor)
-
-        gameloop(editor)
+        gameInit()
+        gameloop()
 
         # editor.insertText(selection)
         #
