@@ -19,6 +19,16 @@ RIGHT = 80
 fpscounter = 0
 selection = ""
 
+averageLengthOfLine = (str) ->
+  arr = str.split("\n")
+  lengths = []
+  lengths.push(a.length) for a in arr
+  sum = 0
+  for l in lengths
+    sum += l
+
+  Math.round(sum/arr.length)
+
 isCollision = ->
   x = Math.round(currentX)
   y = Math.round(currentY)
