@@ -13,6 +13,8 @@ currentY = 15
 vectorX = 0.2
 vectorY = 0.2
 
+gameOver = false
+
 BOTTOM = 30
 RIGHT = 80
 
@@ -77,16 +79,26 @@ setupGameLoop = (gameLoop) ->
     every 1000/60, () ->
       gameLoop()
 
+checkEndCondition = ->
+  if currentX > 30
+    console.log("GAME OVER")
+    gameOver = true
+
 gameloop = ->
   if goingLeft && paddleStart > 0
     paddleStart--
   if goingRight && paddleStart < 70
     paddleStart++
-  drawPaddle()
-  removeBall()
-  moveBall()
-  console.log(isCollision())
-  drawBall()
+
+  if !gameOver
+    drawPaddle()
+    removeBall()
+    moveBall()
+    console.log(isCollision())
+    checkEndCondition()
+    drawBall()
+  else
+    globalEditor.setTextInBufferRange([[20, 35], [20, 45]], "GAME OVER")
 
 
 gameInit = (selection) ->
@@ -94,19 +106,20 @@ gameInit = (selection) ->
   space += ' ' for i in [0..80]
 
   lines = selection.split('\n')
-  globalEditor.insertText(space + '\n') for i in [0..7]
-  globalEditor.insertText(space + '\n') for i in [0..(BOTTOM - getStringLines(selection)+1)]
+  globalEditor.insertText(space + '\n') for i in [0..3]
+  for line in lines
+    globalEditor.insertText(line + space + '\n')
+  globalEditor.insertText(space + '\n') for i in [0..(BOTTOM - getStringLines(selection)-4)]
+  globalEditor.scrollToScreenPosition([0,0])
   setupGameLoop(gameloop)
 
 onLeftDown = (event) ->
   if !goingLeft
     goingLeft = true
-    console.log('GOING LEFT')
 
 onRightDown = (event) ->
   if !goingRight
     goingRight = true
-    console.log('GOING RIGHT')
 
 onLeftUp = (event) ->
   goingLeft = false
