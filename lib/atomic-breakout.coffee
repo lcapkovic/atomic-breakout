@@ -8,6 +8,11 @@ goingRight = false
 paddleStart = 30
 paddle = " ########## "
 
+currentX = 20
+currentY = 15
+vectorX = 0.005
+vectorY = 0.005
+
 BOTTOM = 30
 
 drawPaddle = () ->
@@ -72,8 +77,7 @@ onRightUp = (event) ->
 
 moveBall = ->
 
-  paddleLeft = paddleY - length / 2
-  paddleRight = paddleY + length / 2
+  paddleLength = 10
 
   # Calculate column coordinate: (version without letters)
   newY = currentY + vectorY
@@ -85,14 +89,14 @@ moveBall = ->
 
   # Calculate row coordinate: (version without paddle angle and letters)
   newX = currentX + vectorX
-    if ((newX > bottom and newY > paddleLeft and newY < paddleRight) or (newX < bottom))
-      vectorX = switch
-        when newX > bottom then -vectorX
-        when newY < 0 then -vectorX
-        else vectorX
-    else
-      vectorX = vectorX
-    currentX = currentX + vectorX
+  if ((newX > bottom and newY > paddleStart and newY < paddleStart + paddleLength) or (newX < bottom))
+    vectorX = switch
+      when newX > bottom then -vectorX
+      when newY < 0 then -vectorX
+      else vectorX
+  else
+    vectorX = vectorX
+  currentX = currentX + vectorX
 
 module.exports = AtomicBreakout =
   atomicBreakoutView: null
