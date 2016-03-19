@@ -102,6 +102,17 @@ gameloop = ->
 
 
 gameInit = (selection) ->
+  goingLeft = false
+  goingRight = false
+
+  paddleStart = 30
+
+  currentX = 20
+  currentY = 15
+  vectorX = 0.2
+  vectorY = 0.2
+  gameOver = false
+
   space = ""
   space += ' ' for i in [0..80]
 
