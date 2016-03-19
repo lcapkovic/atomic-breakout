@@ -10,6 +10,7 @@ paddle = " ########## "
 currentX = BOTTOM-1
 currentY = paddleStart+5
 vectorX = 0.2
+
 vectorY = 0.2
 
 loopp = null
@@ -35,22 +36,18 @@ averageLengthOfLine = (str) ->
   Math.round(sum/arr.length)
 
 isCollision = ->
-  x = Math.round(currentX)
   y = Math.round(currentY)
-  returnVal = -1
-  globalEditor.setSelectedBufferRange([[x,y-1], [x,y]]) # top
-  if globalEditor.getSelectedText() == " "
-    returnVal = 0
-  globalEditor.setSelectedBufferRange([[x+1,y], [x+1,y+1]]) # right
-  if globalEditor.getSelectedText() == " "
-    returnVal =  1
-  globalEditor.setSelectedBufferRange([[x,y+1], [x,y+2]]) # down
-  if globalEditor.getSelectedText() == " "
-    returnVal = 2
-  globalEditor.setSelectedBufferRange([[x-1,y], [x-1,y+1]]) # left
-  if globalEditor.getSelectedText() == " "
-    returnVal = 3
-  returnVal
+  x = Math.round(currentX)
+  console.log("I AM COMPLETE")
+  collision = false
+  a = globalEditor.getTextInBufferRange([[x,y], [x,y+1]]) # left
+  if a != " "
+    collision = true
+  collision
+
+savePreviousPosition = () ->
+  previousX = Math.round(currentX)
+  previousY = Math.round(currentY)
 
 drawPaddle = () ->
   paddleLength = paddle.length
@@ -132,12 +129,16 @@ gameInit = (selection) ->
   space = ""
   space += ' ' for i in [0..80]
 
+  as = ""
+  as += 'a' for i in [0..80]
+
   lines = selection.split('\n')
   globalEditor.insertText(space + '\n') for i in [0..3]
   for line in lines
     globalEditor.insertText(line + space + '\n')
   globalEditor.insertText(space + '\n') for i in [0..(BOTTOM - getStringLines(selection)-4)]
   globalEditor.scrollToScreenPosition([0,0])
+
   setupGameLoop(gameloop)
 
 onLeftDown = (event) ->
@@ -174,17 +175,19 @@ getStringLines = (str) ->
   # else
   #   @modalPanel.show()
 
-# Global variables needed:
-# currentX, currentX
-# vectorX, vectorY
-# bottom, right
-# paddleY, length
-
-# The floor function has to be done at the drawing stage
 
 moveBall = ->
 
   paddleLength = paddle.length-2
+
+  if isCollision()
+    X = Math.round(currentX)
+    Y = Math.round(currentY)
+    console.log(previousX.toString() + " " + X.toString())
+    if previousY != Y
+      vectorY = -vectorY
+    if previousX != X
+      vectorX = -vectorX
 
   # Calculate column coordinate: (version without letters)
   newY = currentY + vectorY
