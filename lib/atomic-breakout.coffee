@@ -27,6 +27,8 @@ module.exports = AtomicBreakout =
   convert: ->
     console.log 'AtomicBreakout was toggled!'
     if editor = atom.workspace.getActiveTextEditor()
+      selection = editor.getSelectedText()
+
       editor.insertText('Hello, World!')
 
     # if @modalPanel.isVisible()

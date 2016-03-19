@@ -1,11 +1,4 @@
 # See https://atom.io/docs/latest/hacking-atom-package-word-count#menus for more details
-'context-menu':
-  'atom-text-editor': [
-    {
-      'label': 'Toggle atomic-breakout'
-      'command': 'atomic-breakout:toggle'
-    }
-  ]
 'menu': [
   {
     'label': 'Packages'
@@ -13,8 +6,8 @@
       'label': 'atomic-breakout'
       'submenu': [
         {
-          'label': 'Toggle'
-          'command': 'atomic-breakout:toggle'
+          'label': 'Start Breakout'
+          'command': 'atomic-breakout:convert'
         }
       ]
     ]
