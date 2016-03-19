@@ -62,14 +62,37 @@ onRightUp = (event) ->
   # else
   #   @modalPanel.show()
 
-destroyChar = (x, y) ->
-  replaceChar(x, y, ' ')
+# Global variables needed:
+# currentX, currentX
+# vectorX, vectorY
+# bottom, right
+# paddleY, length
 
-replaceChar = (x, y, z) ->
-  r = [[x, y], [x, y]]
-  globalEditor.setSelectedScreenRange(r)
-  globalEditor.delete()
-  globalEditor.setTextInBufferRange(r, z)
+# The floor function has to be done at the drawing stage
+
+moveBall = ->
+
+  paddleLeft = paddleY - length / 2
+  paddleRight = paddleY + length / 2
+
+  # Calculate column coordinate: (version without letters)
+  newY = currentY + vectorY
+  vectorY = switch
+    when newY > right then -vectorY
+    when newY < 0 then -vectorY
+    else vectorY
+  currentY = currentY + vectorY
+
+  # Calculate row coordinate: (version without paddle angle and letters)
+  newX = currentX + vectorX
+    if ((newX > bottom and newY > paddleLeft and newY < paddleRight) or (newX < bottom))
+      vectorX = switch
+        when newX > bottom then -vectorX
+        when newY < 0 then -vectorX
+        else vectorX
+    else
+      vectorX = vectorX
+    currentX = currentX + vectorX
 
 module.exports = AtomicBreakout =
   atomicBreakoutView: null
