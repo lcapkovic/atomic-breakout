@@ -1,6 +1,13 @@
 AtomicBreakoutView = require './atomic-breakout-view'
 {CompositeDisposable} = require 'atom'
 
+gameloop = (editor) ->
+  editor.insertText("TEST123")
+  # if @modalPanel.isVisible()
+  #   @modalPanel.hide()
+  # else
+  #   @modalPanel.show()
+
 module.exports = AtomicBreakout =
   atomicBreakoutView: null
   modalPanel: null
@@ -16,22 +23,17 @@ module.exports = AtomicBreakout =
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-workspace', 'atomic-breakout:convert': => @convert()
 
-  deactivate: ->
-    @modalPanel.destroy()
-    @subscriptions.dispose()
-    @atomicBreakoutView.destroy()
-
   serialize: ->
     atomicBreakoutViewState: @atomicBreakoutView.serialize()
 
   convert: ->
-    console.log 'AtomicBreakout was toggled!'
     if editor = atom.workspace.getActiveTextEditor()
       selection = editor.getSelectedText()
+      atom.workspace.open().then (editor) ->
+        editorView = atom.views.getView(editor)
+        gameloop(editor)
 
-      editor.insertText('Hello, World!')
-
-    # if @modalPanel.isVisible()
-    #   @modalPanel.hide()
-    # else
-    #   @modalPanel.show()
+        # editor.insertText(selection)
+        #
+        # console.log(editor.getLastScreenRow())
+        # console.log(editor.getLastScreenRow())
