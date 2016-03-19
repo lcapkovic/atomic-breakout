@@ -17,21 +17,25 @@ BOTTOM = 30
 RIGHT = 80
 
 fpscounter = 0
+selection = ""
 
 isCollision = ->
-  globalEditor.setSelectedBufferRange([[currentX,currentY-1], [currentX,currentY-1]]) # top
+  x = Math.round(currentX)
+  y = Math.round(currentY)
+  returnVal = -1
+  globalEditor.setSelectedBufferRange([[x,y-1], [x,y]]) # top
   if globalEditor.getSelectedText() == " "
-    return 0;
-  globalEditor.setSelectedBufferRange([[currentX+1,currentY], [currentX+1,currentY]]) # right
+    returnVal = 0
+  globalEditor.setSelectedBufferRange([[x+1,y], [x+1,y+1]]) # right
   if globalEditor.getSelectedText() == " "
-    return 1;
-  globalEditor.setSelectedBufferRange([[currentX,currentY+1], [currentX,currentY+1]]) # down
+    returnVal =  1
+  globalEditor.setSelectedBufferRange([[x,y+1], [x,y+2]]) # down
   if globalEditor.getSelectedText() == " "
-    return 2;
-  globalEditor.setSelectedBufferRange([[currentX-1,currentY], [currentX-1,currentY]]) # left
+    returnVal = 2
+  globalEditor.setSelectedBufferRange([[x-1,y], [x-1,y+1]]) # left
   if globalEditor.getSelectedText() == " "
-    return 3;
-return -1;
+    returnVal = 3
+  returnVal
 
 drawPaddle = () ->
   paddleLength = paddle.length
@@ -71,6 +75,7 @@ gameloop = ->
   drawPaddle()
   removeBall()
   moveBall()
+  console.log(isCollision())
   drawBall()
 
 
