@@ -148,6 +148,9 @@ gameInit = (selection) ->
   space = ""
   space += ' ' for i in [0..RIGHT+20]
 
+  audio = new Audio(atom.packages.getPackageDirPaths()[0] + '/atomic-breakout/Explosion1.m4a')
+  audio.play()
+  console.log(atom.packages.getPackageDirPaths())
 
   console.log("Max: " + maximumLengthOfLine(selection))
   console.log(((RIGHT - maximumLengthOfLine(selection)) // 2).toString())
