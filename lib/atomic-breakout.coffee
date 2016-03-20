@@ -181,11 +181,15 @@ moveBall = ->
 
   # Calculate row coordinate: (version without paddle angle and letters)
   newX = currentX + vectorX
-  if ((newX > BOTTOM and newY > paddleStart and newY < paddleStart + paddleLength) or (newX < BOTTOM))
+  if ((Math.round(newX) == BOTTOM and newY > paddleStart and newY < paddleStart + paddleLength + 1) or (Math.round(newX) < BOTTOM))
     vectorX = switch
-      when newX > BOTTOM then -vectorX
+      when Math.round(newX) == BOTTOM then -vectorX
       when newX < 0 then -vectorX
       else vectorX
+
+    if (Math.round(newX) == BOTTOM)
+      direction = newY - paddleStart - 5.5
+      vectorY = 0.4 * direction / 4.5
   else
     vectorX = vectorX
   currentX = currentX + vectorX
