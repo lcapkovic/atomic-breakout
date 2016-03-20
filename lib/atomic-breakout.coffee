@@ -227,7 +227,8 @@ module.exports = AtomicBreakout =
     if editor = atom.workspace.getActiveTextEditor()
       selection = editor.getSelectedText()
 
-      atom.workspace.open().then (editor) ->
+      suffix = editor.getTitle().split('.')[1]
+      atom.workspace.open("breakout." + suffix).then (editor) ->
         globalEditor = editor
         editorView = atom.views.getView(editor)
 
