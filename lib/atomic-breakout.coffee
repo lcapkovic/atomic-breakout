@@ -27,15 +27,16 @@ selection = ""
 
 letters = ((false for sth in [1..2*BOTTOM]) for sth2 in [1..2*RIGHT])
 
-averageLengthOfLine = (str) ->
+maximumLengthOfLine = (str) ->
   arr = str.split("\n")
   lengths = []
   lengths.push(a.length) for a in arr
-  sum = 0
+  max = 0
   for l in lengths
-    sum += l
-
-  Math.round(sum/arr.length)
+    console.log(l.toString())
+    if l > max
+      max = l
+  max
 
 isCollision = ->
   letters[Math.round(currentX)][Math.round(currentY)]
@@ -119,11 +120,20 @@ gameInit = (selection) ->
   beforeStart = true
 
   space = ""
-  space += ' ' for i in [0..80]
+  space += ' ' for i in [0..RIGHT]
+
+
+  console.log("Max: " + maximumLengthOfLine(selection))
+  console.log(((RIGHT - maximumLengthOfLine(selection)) // 2).toString())
+  centeringLength = ((RIGHT - maximumLengthOfLine(selection)) // 2)
+  centering = ""
+  if centeringLength > 0
+    centering += ' ' for i in [0..((RIGHT - maximumLengthOfLine(selection)) // 2)]
 
   lines = selection.split('\n')
   globalEditor.insertText(space + '\n') for i in [0..3]
   for line in lines
+    line = centering + line
     globalEditor.insertText(line + space + '\n')
   globalEditor.insertText(space + '\n') for i in [0..(BOTTOM - getStringLines(selection)-4)]
   globalEditor.scrollToScreenPosition([0,0])
