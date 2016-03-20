@@ -350,6 +350,8 @@ module.exports = AtomicBreakout =
       suffix = editor.getTitle().split('.')[1]
       atom.workspace.open("breakout." + suffix).then (editor) ->
         globalEditor = editor
+        globalEditor.selectAll()
+        globalEditor.delete()
         editorView = atom.views.getView(editor)
 
         editorView.addEventListener 'keydown', handler = (event) ->
