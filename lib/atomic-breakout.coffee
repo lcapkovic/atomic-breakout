@@ -1,12 +1,12 @@
 {CompositeDisposable} = require 'atom'
+SoundMaker = require './sound-maker'
 
+soundMaker = null
 globalEditor = null
 goingLeft = false
 goingRight = false
-
 paddleStart = 30
 paddle = " [XXXXXXXX] "
-
 
 currentX = BOTTOM-1
 currentY = paddleStart+5
@@ -125,8 +125,7 @@ gameloop = ->
       drawScore()
       willDrawScore = false
   else
-    globalEditor.setTextInBufferRange([[20, 35], [20, 45]], "GAME OVER")
-    stopGameLoop()
+    onGameOver()
 
 gameInit = (selection) ->
   goingLeft = false
@@ -147,10 +146,6 @@ gameInit = (selection) ->
 
   space = ""
   space += ' ' for i in [0..RIGHT+20]
-
-  audio = new Audio(atom.packages.getPackageDirPaths()[0] + '/atomic-breakout/Explosion1.m4a')
-  audio.play()
-  console.log(atom.packages.getPackageDirPaths())
 
   console.log("Max: " + maximumLengthOfLine(selection))
   console.log(((RIGHT - maximumLengthOfLine(selection)) // 2).toString())
@@ -195,10 +190,24 @@ onSpaceDown = (event) ->
   vectorY = 0.1
 
 onEscDown = (event) ->
+  onGameOver()
+
+onGameOver = ->
+  message = "GAME OVER"
+  figlet = require 'figlet'
+  font = "o8"
+  figlet message, {font: font}, (error, art) ->
+      if error
+        console.error(error)
+      else
+        artLines = art.split('\n')
+        counter = 0
+        for line in artLines
+          globalEditor.setTextInBufferRange([[15+counter,10],[15+counter, 10+line.length]], line)
+          counter++
   stopGameLoop()
 
 onWinCondition = ->
-
   winMessage = "YOU WIN!!!"
   figlet = require 'figlet'
   font = "o8"
@@ -209,9 +218,9 @@ onWinCondition = ->
         artLines = art.split('\n')
         counter = 0
         for line in artLines
-          console.log(line)
           globalEditor.setTextInBufferRange([[15+counter,10],[15+counter, 10+line.length]], line)
           counter++
+  stopGameLoop()
 
 getStringLines = (str) ->
   counter = 1
@@ -256,6 +265,7 @@ moveBall = ->
     Y = Math.round(currentY)
     letters[X][Y] = false
     score++
+    soundMaker.playHit()
     willDrawScore = true
     charsLeft--
     if charsLeft <= 0
@@ -272,14 +282,27 @@ moveBall = ->
     else
       vectorX = -vectorX
 
+calculateSize = (width, height, lineHeight) ->
+  averageRatio = 0.45
+  numberOfLines = Math.floor(height / lineHeight)
+  charWidth = lineHeight*averageRatio
+  numberOfChars = Math.floor(width / charWidth)
+  right = numberOfChars
+  bottom = numberOfLines
+
 module.exports = AtomicBreakout =
   atomicBreakoutView: null
   modalPanel: null
   subscriptions: null
+  config:
+    soundTheme:
+      type: 'string'
+      default: 'martin'
 
   activate: (state) ->
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
+    soundMaker = new SoundMaker(atom.config.get('atomic-breakout.soundTheme'))
 
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-workspace', 'atomic-breakout:convert': => @convert()
