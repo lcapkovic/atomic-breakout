@@ -5,18 +5,22 @@ goingLeft = false
 goingRight = false
 
 paddleStart = 30
-paddle = " ########## "
+paddle = " [XXXXXXXX] "
 
 
 currentX = BOTTOM-1
 currentY = paddleStart+5
 vectorX = 0.12
 vectorY = -0.14
+score = 0
+charsLeft = 0
 
 loopp = null
 
 gameOver = false
+winCondition = false
 beforeStart = true
+willDrawScore = true
 
 animationFrame = null
 BOTTOM = 30
@@ -57,6 +61,22 @@ drawBall = () ->
 
   globalEditor.setTextInBufferRange([[x,y],[x,y+1]], 'Θ')
 
+drawScore = () ->
+  scoreStr = score.toString()
+  space = "          "
+  figlet = require 'figlet'
+  font = "o8"
+  figlet scoreStr, {font: font}, (error, art) ->
+      if error
+        console.error(error)
+      else
+        counter = 0
+        artLines = art.split('\n')
+        for line in artLines
+          globalEditor.setTextInBufferRange([[2+counter,RIGHT+2],[2+counter,RIGHT+line.length+space.length+2]], line + space)
+          counter++
+  # globalEditor.setTextInBufferRange([[2,RIGHT],[2,RIGHT+scoreStr.length]], scoreStr)
+
 setupGameLoop = (gameLoop) ->
   animationFrame = window.requestAnimationFrame
   every = (ms, cb) -> setInterval cb, ms
@@ -70,8 +90,7 @@ setupGameLoop = (gameLoop) ->
   #   animationFrame(recursiveAnimation)
 
 stopGameLoop = ->
-  if animationFrame != null
-    clearInterval(loopp)
+  clearInterval(loopp)
 
 
 checkEndCondition = ->
@@ -86,7 +105,9 @@ gameloop = ->
   if goingRight && paddleStart < 70
     paddleStart++
 
-  if beforeStart
+  if winCondition
+    onWinCondition()
+  else if beforeStart
     vectorX = 0
     vectorY = 0
     removeBall()
@@ -100,11 +121,12 @@ gameloop = ->
     moveBall()
     checkEndCondition()
     drawBall()
+    if willDrawScore
+      drawScore()
+      willDrawScore = false
   else
     globalEditor.setTextInBufferRange([[20, 35], [20, 45]], "GAME OVER")
     stopGameLoop()
-
-
 
 gameInit = (selection) ->
   goingLeft = false
@@ -118,9 +140,13 @@ gameInit = (selection) ->
   vectorY = 0.05
   gameOver = false
   beforeStart = true
+  score = 0
+  charsLeft = 0
+
+  willDrawScore = true
 
   space = ""
-  space += ' ' for i in [0..RIGHT]
+  space += ' ' for i in [0..RIGHT+20]
 
 
   console.log("Max: " + maximumLengthOfLine(selection))
@@ -141,6 +167,8 @@ gameInit = (selection) ->
   for i in [0..BOTTOM]
     for j in [0..RIGHT]
       letters[i][j] = globalEditor.getTextInBufferRange([[i,j], [i,j+1]]) != " "
+      if letters[i][j]
+        charsLeft++
 
   setupGameLoop(gameloop)
 
@@ -165,6 +193,22 @@ onSpaceDown = (event) ->
 
 onEscDown = (event) ->
   stopGameLoop()
+
+onWinCondition = ->
+
+  winMessage = "YOU WIN!!!"
+  figlet = require 'figlet'
+  font = "o8"
+  figlet winMessage, {font: font}, (error, art) ->
+      if error
+        console.error(error)
+      else
+        artLines = art.split('\n')
+        counter = 0
+        for line in artLines
+          console.log(line)
+          globalEditor.setTextInBufferRange([[15+counter,10],[15+counter, 10+line.length]], line)
+          counter++
 
 getStringLines = (str) ->
   counter = 1
@@ -208,7 +252,14 @@ moveBall = ->
     X = Math.round(currentX)
     Y = Math.round(currentY)
     letters[X][Y] = false
+    score++
+    willDrawScore = true
+    charsLeft--
+    if charsLeft <= 0
+      winCondition = true
 
+    console.log(score)
+    console.log(charsLeft)
     r = Y + 0.5 - currentY
     l = currentY - Y + 0.5
     d = X + 0.5 - currentX
