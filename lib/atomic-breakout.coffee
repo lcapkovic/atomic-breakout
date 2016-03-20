@@ -68,16 +68,22 @@ drawScore = () ->
   space = "          "
   figlet = require 'figlet'
   font = "o8"
+
+  counter = 0
   figlet scoreStr, {font: font}, (error, art) ->
       if error
         console.error(error)
       else
-        counter = 0
         artLines = art.split('\n')
         for line in artLines
           globalEditor.setTextInBufferRange([[2+counter,RIGHT+2],[2+counter,RIGHT+line.length+space.length+2]], line + space)
           counter++
-  # globalEditor.setTextInBufferRange([[2,RIGHT],[2,RIGHT+scoreStr.length]], scoreStr)
+
+drawComboCounter = () ->
+  comboCounterStr = "Combo: " + comboCounter
+  space = "          "
+  globalEditor.setTextInBufferRange([[8, RIGHT+2],[8, RIGHT+comboCounterStr.length+space.length+2]], comboCounterStr + space)
+
 
 setupGameLoop = (gameLoop) ->
   animationFrame = window.requestAnimationFrame
@@ -127,6 +133,7 @@ gameloop = ->
     if willDrawScore
       drawScore()
       willDrawScore = false
+    drawComboCounter()
   else
     onGameOver()
 
@@ -294,7 +301,7 @@ moveBall = ->
 
 checkCombo = ->
   timeNow = Date.now()
-  if timeNow - lastHitInMs < 500
+  if (timeNow - lastHitInMs) < 500
     comboCounter++
     if comboCounter == 5
       soundMaker.playCombo(1)
