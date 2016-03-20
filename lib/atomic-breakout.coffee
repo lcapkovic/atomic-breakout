@@ -59,7 +59,7 @@ drawBall = () ->
 setupGameLoop = (gameLoop) ->
   animationFrame = window.requestAnimationFrame
   every = (ms, cb) -> setInterval cb, ms
-  loopp = every 1000/60, () ->
+  loopp = every 1000/200, () ->
     gameLoop()
 
   # if animationFrame != null
@@ -113,8 +113,8 @@ gameInit = (selection) ->
 
   currentX = 20
   currentY = 15
-  vectorX = 0.2
-  vectorY = 0.2
+  vectorX = 0.06
+  vectorY = 0.05
   gameOver = false
   beforeStart = true
 
