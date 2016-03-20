@@ -54,7 +54,7 @@ drawBall = () ->
   x = Math.round(currentX)
   y = Math.round(currentY)
 
-  globalEditor.setTextInBufferRange([[x,y],[x,y+1]], 'O')
+  globalEditor.setTextInBufferRange([[x,y],[x,y+1]], 'Θ')
 
 setupGameLoop = (gameLoop) ->
   animationFrame = window.requestAnimationFrame
