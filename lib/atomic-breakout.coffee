@@ -7,11 +7,11 @@ goingRight = false
 paddleStart = 30
 paddle = " ########## "
 
+
 currentX = BOTTOM-1
 currentY = paddleStart+5
-vectorX = 0.2
-
-vectorY = 0.2
+vectorX = 0.12
+vectorY = -0.14
 
 loopp = null
 
@@ -25,6 +25,8 @@ RIGHT = 80
 fpscounter = 0
 selection = ""
 
+letters = ((false for sth in [1..2*BOTTOM]) for sth2 in [1..2*RIGHT])
+
 averageLengthOfLine = (str) ->
   arr = str.split("\n")
   lengths = []
@@ -36,18 +38,7 @@ averageLengthOfLine = (str) ->
   Math.round(sum/arr.length)
 
 isCollision = ->
-  y = Math.round(currentY)
-  x = Math.round(currentX)
-  console.log("I AM COMPLETE")
-  collision = false
-  a = globalEditor.getTextInBufferRange([[x,y], [x,y+1]]) # left
-  if a != " "
-    collision = true
-  collision
-
-savePreviousPosition = () ->
-  previousX = Math.round(currentX)
-  previousY = Math.round(currentY)
+  letters[Math.round(currentX)][Math.round(currentY)]
 
 drawPaddle = () ->
   paddleLength = paddle.length
@@ -87,6 +78,7 @@ checkEndCondition = ->
     console.log("GAME OVER")
     gameOver = true
 
+
 gameloop = ->
   if goingLeft && paddleStart > 0
     paddleStart--
@@ -105,12 +97,12 @@ gameloop = ->
     drawPaddle()
     removeBall()
     moveBall()
-    isCollision()
     checkEndCondition()
     drawBall()
   else
     globalEditor.setTextInBufferRange([[20, 35], [20, 45]], "GAME OVER")
     stopGameLoop()
+
 
 
 gameInit = (selection) ->
@@ -129,15 +121,16 @@ gameInit = (selection) ->
   space = ""
   space += ' ' for i in [0..80]
 
-  as = ""
-  as += 'a' for i in [0..80]
-
   lines = selection.split('\n')
   globalEditor.insertText(space + '\n') for i in [0..3]
   for line in lines
     globalEditor.insertText(line + space + '\n')
   globalEditor.insertText(space + '\n') for i in [0..(BOTTOM - getStringLines(selection)-4)]
   globalEditor.scrollToScreenPosition([0,0])
+
+  for i in [0..BOTTOM]
+    for j in [0..RIGHT]
+      letters[i][j] = globalEditor.getTextInBufferRange([[i,j], [i,j+1]]) != " "
 
   setupGameLoop(gameloop)
 
@@ -175,19 +168,8 @@ getStringLines = (str) ->
   # else
   #   @modalPanel.show()
 
-
 moveBall = ->
-
   paddleLength = paddle.length-2
-
-  if isCollision()
-    X = Math.round(currentX)
-    Y = Math.round(currentY)
-    console.log(previousX.toString() + " " + X.toString())
-    if previousY != Y
-      vectorY = -vectorY
-    if previousX != X
-      vectorX = -vectorX
 
   # Calculate column coordinate: (version without letters)
   newY = currentY + vectorY
@@ -207,6 +189,20 @@ moveBall = ->
   else
     vectorX = vectorX
   currentX = currentX + vectorX
+
+  if isCollision()
+    X = Math.round(currentX)
+    Y = Math.round(currentY)
+    letters[X][Y] = false
+
+    r = Y + 0.5 - currentY
+    l = currentY - Y + 0.5
+    d = X + 0.5 - currentX
+    u = currentX - X + 0.5
+    if Math.min(r, l) < Math.min(d, u)
+      vectorY = -vectorY
+    else
+      vectorX = -vectorX
 
 module.exports = AtomicBreakout =
   atomicBreakoutView: null
