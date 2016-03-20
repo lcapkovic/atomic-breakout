@@ -1,4 +1,3 @@
-AtomicBreakoutView = require './atomic-breakout-view'
 {CompositeDisposable} = require 'atom'
 
 globalEditor = null
@@ -8,13 +7,17 @@ goingRight = false
 paddleStart = 30
 paddle = " ########## "
 
-currentX = 20
-currentY = 15
+currentX = BOTTOM-1
+currentY = paddleStart+5
 vectorX = 0.2
 vectorY = 0.2
 
-gameOver = false
+loopp = null
 
+gameOver = false
+beforeStart = true
+
+animationFrame = null
 BOTTOM = 30
 RIGHT = 80
 
@@ -67,17 +70,20 @@ drawBall = () ->
 
 setupGameLoop = (gameLoop) ->
   animationFrame = window.requestAnimationFrame
+  every = (ms, cb) -> setInterval cb, ms
+  loopp = every 1000/60, () ->
+    gameLoop()
 
+  # if animationFrame != null
+  #   recursiveAnimation = () ->
+  #     gameLoop()
+  #     animationFrame(recursiveAnimation)
+  #   animationFrame(recursiveAnimation)
+
+stopGameLoop = ->
   if animationFrame != null
-    recursiveAnimation = () ->
-      gameLoop()
-      animationFrame(recursiveAnimation)
-    animationFrame(recursiveAnimation)
+    clearInterval(loopp)
 
-  if animationFrame is null
-    every = (ms, cb) -> setInterval cb, ms
-    every 1000/60, () ->
-      gameLoop()
 
 checkEndCondition = ->
   if currentX > 30
@@ -90,15 +96,24 @@ gameloop = ->
   if goingRight && paddleStart < 70
     paddleStart++
 
-  if !gameOver
+  if beforeStart
+    vectorX = 0
+    vectorY = 0
+    removeBall()
+    currentX = BOTTOM-1
+    currentY = paddleStart+5
+    drawPaddle()
+    drawBall()
+  else if !gameOver
     drawPaddle()
     removeBall()
     moveBall()
-    console.log(isCollision())
+    isCollision()
     checkEndCondition()
     drawBall()
   else
     globalEditor.setTextInBufferRange([[20, 35], [20, 45]], "GAME OVER")
+    stopGameLoop()
 
 
 gameInit = (selection) ->
@@ -112,6 +127,7 @@ gameInit = (selection) ->
   vectorX = 0.2
   vectorY = 0.2
   gameOver = false
+  beforeStart = true
 
   space = ""
   space += ' ' for i in [0..80]
@@ -137,6 +153,14 @@ onLeftUp = (event) ->
 
 onRightUp = (event) ->
   goingRight = false
+
+onSpaceDown = (event) ->
+  beforeStart = false
+  vectorX = -0.2
+  vectorY = 0.1
+
+onEscDown = (event) ->
+  stopGameLoop()
 
 getStringLines = (str) ->
   counter = 1
@@ -187,25 +211,18 @@ module.exports = AtomicBreakout =
   subscriptions: null
 
   activate: (state) ->
-    @atomicBreakoutView = new AtomicBreakoutView(state.atomicBreakoutViewState)
-    @modalPanel = atom.workspace.addModalPanel(item: @atomicBreakoutView.getElement(), visible: false)
-
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
     @subscriptions = new CompositeDisposable
 
     # Register command that toggles this view
     @subscriptions.add atom.commands.add 'atom-workspace', 'atomic-breakout:convert': => @convert()
 
-  serialize: ->
-    atomicBreakoutViewState: @atomicBreakoutView.serialize()
+  deactivate: ->
+    @subscriptions.dispose()
 
   convert: ->
     if editor = atom.workspace.getActiveTextEditor()
       selection = editor.getSelectedText()
-
-      atom.commands.add 'a',
-        'user:moveLeft': (event) ->
-          console.log("test")
 
       atom.workspace.open().then (editor) ->
         globalEditor = editor
@@ -214,6 +231,8 @@ module.exports = AtomicBreakout =
         editorView.addEventListener 'keydown', handler = (event) ->
           onLeftDown() if event.which is 37
           onRightDown() if event.which is 39
+          onSpaceDown() if event.which is 32
+          onEscDown() if event.which is 27
 
         editorView.addEventListener 'keyup', handler = (event) ->
           onLeftUp() if event.which is 37
