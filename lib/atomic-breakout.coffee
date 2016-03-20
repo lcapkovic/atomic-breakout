@@ -8,6 +8,9 @@ goingRight = false
 paddleStart = 30
 paddle = " [XXXXXXXX] "
 
+comboCounter = 0
+lastHitInMs = 0
+
 currentX = BOTTOM-1
 currentY = paddleStart+5
 vectorX = 0.12
@@ -37,7 +40,6 @@ maximumLengthOfLine = (str) ->
   lengths.push(a.length) for a in arr
   max = 0
   for l in lengths
-    console.log(l.toString())
     if l > max
       max = l
   max
@@ -97,6 +99,7 @@ checkEndCondition = ->
   if currentX > 30
     console.log("GAME OVER")
     gameOver = true
+    soundMaker.playGameover()
 
 
 gameloop = ->
@@ -133,6 +136,8 @@ gameInit = (selection) ->
 
   paddleStart = 30
 
+  comboCounter = 0
+  lastHitInMs = 0
   currentX = 20
   currentY = 15
   vectorX = 0.06
@@ -147,8 +152,6 @@ gameInit = (selection) ->
   space = ""
   space += ' ' for i in [0..RIGHT+20]
 
-  console.log("Max: " + maximumLengthOfLine(selection))
-  console.log(((RIGHT - maximumLengthOfLine(selection)) // 2).toString())
   centeringLength = ((RIGHT - maximumLengthOfLine(selection)) // 2)
   centering = ""
   if centeringLength > 0
@@ -191,6 +194,8 @@ onSpaceDown = (event) ->
 
 onEscDown = (event) ->
   onGameOver()
+  activePane = atom.workspace.getActivePaneItem()
+  activePane.destroy()
 
 onGameOver = ->
   message = "GAME OVER"
@@ -265,14 +270,13 @@ moveBall = ->
     Y = Math.round(currentY)
     letters[X][Y] = false
     score++
+    checkCombo()
     soundMaker.playHit()
     willDrawScore = true
     charsLeft--
     if charsLeft <= 0
       winCondition = true
 
-    console.log(score)
-    console.log(charsLeft)
     r = Y + 0.5 - currentY
     l = currentY - Y + 0.5
     d = X + 0.5 - currentX
@@ -281,6 +285,29 @@ moveBall = ->
       vectorY = -vectorY
     else
       vectorX = -vectorX
+
+checkCombo = ->
+  timeNow = Date.now()
+  if timeNow - lastHitInMs < 500
+    comboCounter++
+    if comboCounter == 5
+      soundMaker.playCombo(1)
+    else if comboCounter == 7
+      soundMaker.playCombo(2)
+    else if comboCounter == 9
+      soundMaker.playCombo(3)
+    else if comboCounter == 12
+      soundMaker.playCombo(4)
+    else if comboCounter > 15 && comboCounter % 4 == 0
+      soundMaker.playCombo(4)
+
+  else
+    if comboCounter > 10
+      soundMaker.playComboBreaker()
+    comboCounter = 0
+  lastHitInMs = timeNow
+  if comboCounter > 4
+    console.log("COMBO")
 
 calculateSize = (width, height, lineHeight) ->
   averageRatio = 0.45
@@ -297,7 +324,7 @@ module.exports = AtomicBreakout =
   config:
     soundTheme:
       type: 'string'
-      default: 'martin'
+      default: 'arnie'
 
   activate: (state) ->
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
@@ -330,8 +357,3 @@ module.exports = AtomicBreakout =
           onRightUp() if event.which is 39
 
         gameInit(selection)
-
-        # editor.insertText(selection)
-        #
-        # console.log(editor.getLastScreenRow())
-        # console.log(editor.getLastScreenRow())
