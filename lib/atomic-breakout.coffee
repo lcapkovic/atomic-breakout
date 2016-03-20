@@ -204,6 +204,13 @@ onEscDown = (event) ->
   activePane = atom.workspace.getActivePaneItem()
   activePane.destroy()
 
+onRDown = (event, selection) ->
+  #onGameOver()
+  globalEditor.selectAll()
+  globalEditor.delete()
+  gameInit(selection)
+  globalEditor.delete()
+
 onGameOver = ->
   message = "GAME OVER"
   figlet = require 'figlet'
@@ -366,6 +373,7 @@ module.exports = AtomicBreakout =
           onRightDown() if event.which is 39
           onSpaceDown() if event.which is 32
           onEscDown() if event.which is 27
+          onRDown(event, selection) if event.which is 8
 
         editorView.addEventListener 'keyup', handler = (event) ->
           onLeftUp() if event.which is 37
