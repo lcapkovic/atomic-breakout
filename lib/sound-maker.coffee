@@ -48,3 +48,8 @@ class SoundMaker
     else if @soundTheme == 'arnie'
       sound = new Audio(atom.packages.getPackageDirPaths()[0] + '/atomic-breakout/sound/arnieGameover.wav')
       sound.play()
+
+  playPaddle: ->
+    if @soundTheme == 'basic' || @soundTheme == 'arnie'
+      hit = new Audio(atom.packages.getPackageDirPaths()[0] + '/atomic-breakout/sound/basicPaddle.wav')
+      hit.play()

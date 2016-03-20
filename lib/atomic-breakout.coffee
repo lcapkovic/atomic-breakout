@@ -244,21 +244,27 @@ moveBall = ->
 
   # Calculate column coordinate: (version without letters)
   newY = currentY + vectorY
+  if newY > RIGHT || newY < 0
+    soundMaker.playPaddle()
   vectorY = switch
     when newY > RIGHT then -vectorY
     when newY < 0 then -vectorY
     else vectorY
+
   currentY = currentY + vectorY
 
   # Calculate row coordinate: (version without paddle angle and letters)
   newX = currentX + vectorX
   if ((Math.round(newX) == BOTTOM and newY > paddleStart and newY < paddleStart + paddleLength + 1) or (Math.round(newX) < BOTTOM))
+    if newX < 0
+      soundMaker.playPaddle()
     vectorX = switch
       when Math.round(newX) == BOTTOM then -vectorX
       when newX < 0 then -vectorX
       else vectorX
 
     if (Math.round(newX) == BOTTOM)
+      soundMaker.playPaddle()
       direction = newY - paddleStart - 5.5
       vectorY = 0.4 * direction / 4.5
   else
@@ -324,7 +330,7 @@ module.exports = AtomicBreakout =
   config:
     soundTheme:
       type: 'string'
-      default: 'arnie'
+      default: 'basic'
 
   activate: (state) ->
     # Events subscribed to in atom's system can be easily cleaned up with a CompositeDisposable
